@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="top_view" type="id" />
+    <item name="sticky_nav" type="id" />
+    <item name="view_pager" type="id" />
+
+
+    <item name="qrcode_id_auto_focus" type="id"/>
+    <item name="qrcode_id_decode" type="id"/>
+    <item name="qrcode_id_decode_failed" type="id"/>
+    <item name="qrcode_id_decode_succeeded" type="id"/>
+    <item name="qrcode_id_encode_failed" type="id"/>
+    <item name="qrcode_id_encode_succeeded" type="id"/>
+    <item name="qrcode_id_launch_product_query" type="id"/>
+    <item name="qrcode_id_quit" type="id"/>
+    <item name="qrcode_id_restart_preview" type="id"/>
+    <item name="qrcode_id_return_scan_result" type="id"/>
+    <item name="qrcode_id_search_book_contents_failed" type="id"/>
+    <item name="qrcode_id_search_book_contents_succeeded" type="id"/>
+
+</resources>
