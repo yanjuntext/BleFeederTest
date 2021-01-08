@@ -13,6 +13,9 @@ import kotlin.math.log
  *@time 2020/4/28 16:04
  */
 
+private const val BLE_HEAD_ONE = 0x4A.toByte()
+private const val BLE_HEAD_TWO = 0x4B.toByte()
+
 fun getCrc(data: ByteArray): Int {
     val size = data.size
     var crc = 0
@@ -21,6 +24,9 @@ fun getCrc(data: ByteArray): Int {
     }
     return crc
 }
+
+private val zeroMac by lazy { mutableListOf("", "0", "00", "000", "0000", "00000", "000000") }
+
 
 object BLEIO {
 
@@ -49,9 +55,6 @@ object BLEIO {
     const val CHECK_MAC = 0xF
     const val SET_LED = 0x10
 
-
-    private const val BLE_HEAD_ONE = 0x4A.toByte()
-    private const val BLE_HEAD_TWO = 0x4B.toByte()
 
     private fun getData(cmd: Int): ByteArray {
         val data = ByteArray(20)
@@ -233,7 +236,6 @@ object BLEIO {
         return data
     }
 
-    private val zeroMac by lazy { mutableListOf("", "0", "00", "000", "0000", "00000", "000000") }
 
     fun setMac(mac: Long): ByteArray {
         val data = getData(SET_MAC_CMD)
@@ -262,4 +264,163 @@ object BLEIO {
         return data
     }
 
+}
+
+/**猫背包*/
+
+//温湿度检测
+const val PACK_TEMP = 0x1
+
+//风扇工作模式 查询
+const val PACK_FAN = 0x2
+
+//风扇工作模式 手动模式
+const val PACK_FAN_MANUAL = 0x3
+
+//风扇工作模式 自动模式
+const val PACK_FAN_AUTO = 0x4
+
+//版本查询
+const val PACK_VERSION = 0x5
+
+//OTA升级准备
+const val PACK_OTA_START = 0x6
+
+//设备Mac地址 查询/设置
+const val PACK_MAC = 0x7
+
+data class FanMode(
+    var fan: Int,
+    var speed: Int,
+    var mode: Int,
+    var autoFan: Int,
+    var temp1: Int,
+    var temp2: Int
+)
+
+object PackBleIo {
+
+    private fun getData(cmd: Int): ByteArray {
+        val data = ByteArray(20)
+        data[0] = BLE_HEAD_ONE
+        data[1] = BLE_HEAD_TWO
+        data[2] = cmd.toByte()
+        return data
+    }
+
+    /**温湿度*/
+    fun getTemp(): ByteArray {
+        val data = getData(PACK_TEMP)
+        data[data.size - 1] = getCrc(data).toByte()
+        return data
+    }
+
+    /**查询风扇工作模式*/
+    fun getFan(): ByteArray {
+        val data = getData(PACK_FAN)
+        data[3] = 0
+        data[data.size - 1] = getCrc(data).toByte()
+        return data
+    }
+
+    /**设置风扇工作模式*/
+    fun setFanMode(fan: Int, mode: Int, temp: Int, speed: Int): ByteArray {
+        val data = getData(PACK_FAN)
+        data[3] = 1
+        data[4] = fan.toByte()
+        data[5] = mode.toByte()
+        data[6] = temp.toByte()
+        data[7] = speed.toByte()
+        data[data.size - 1] = getCrc(data).toByte()
+        return data
+    }
+
+    /**手动模式*/
+    fun setManualFanMode(fanMode: FanMode): ByteArray {
+        val data = getData(PACK_FAN_MANUAL)
+        data[3] = fanMode.fan.toByte()
+        data[4] = fanMode.speed.toByte()
+        data[data.size - 1] = getCrc(data).toByte()
+        return data
+    }
+
+    /**自动模式*/
+    fun setAutoFanMode(fanMode: FanMode): ByteArray {
+        val data = getData(PACK_FAN_AUTO)
+        data[3] = fanMode.autoFan.toByte()
+        data[4] = fanMode.temp1.toByte()
+        data[5] = fanMode.temp2.toByte()
+        data[data.size - 1] = getCrc(data).toByte()
+        return data
+    }
+
+
+    /**电池电量检测*/
+//    fun getBattery(): ByteArray {
+//        val data = getData(PACK_BATTERY)
+//        data[data.size - 1] = getCrc(data).toByte()
+//        return data
+//    }
+    /**设置MAC地址*/
+    fun setPackMac(mac: Long): ByteArray? {
+        val data = getData(PACK_MAC)
+
+        data[3] = 1
+
+        data[4] = 1
+        data[5] = 144.toByte()
+        data[6] = 1
+        val hexMac = mac.toString(16)
+        if (6 - hexMac.length < 0) {
+            return null
+        }
+        val strMac = zeroMac[6 - hexMac.length] + hexMac
+        for (i in 0..2) {
+            val index = strMac.substring(i * 2, (i + 1) * 2)
+            Log.i(TAG(), "mac index[$index],int[${index.toInt(16)}]")
+            data[6 + i + 1] = index.toInt(16).toByte()
+        }
+        data[19] = getCrc(data).toByte()
+        Log.i(TAG(), "mac all[${ParseBLEIO.getHex(data, data.size)}]")
+        return data
+    }
+
+    /**版本查询*/
+    fun getVersion(): ByteArray {
+        val data = getData(PACK_VERSION)
+        data[data.size - 1] = getCrc(data).toByte()
+        return data
+    }
+
+    fun otaBefore(): ByteArray {
+        val data = getData(PACK_OTA_START)
+        data[data.size - 1] = getCrc(data).toByte()
+        return data
+    }
+
+    //设置FW 设备MAC地址
+    fun setFWPackMac(mac: Long): ByteArray? {
+        val data = ByteArray(20)
+        data[0] = 8;
+        data[1] = 0x11
+        data[2] = 7
+        data[3] = 1
+
+        data[4] = 1
+        data[5] = 144.toByte()
+        data[6] = 1
+        val hexMac = mac.toString(16)
+        if (6 - hexMac.length < 0) {
+            return null
+        }
+        val strMac = zeroMac[6 - hexMac.length] + hexMac
+        for (i in 0..2) {
+            val index = strMac.substring(i * 2, (i + 1) * 2)
+            Log.i(TAG(), "mac index[$index],int[${index.toInt(16)}]")
+            data[6 + i + 1] = index.toInt(16).toByte()
+        }
+        data[19] = getCrc(data).toByte()
+        Log.i(TAG(), "mac all[${ParseBLEIO.getHex(data, data.size)}]")
+        return data
+    }
 }

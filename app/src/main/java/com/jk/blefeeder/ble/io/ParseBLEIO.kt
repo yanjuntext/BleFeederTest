@@ -182,14 +182,13 @@ object ParseBLEIO {
             return null
         }
         val hex = StringBuilder(2 * raw.size)
-        var len = 0
         val i = 0
-        for (b in raw) {
+        for ((len, b) in raw.withIndex()) {
             hex.append(HEXES[b and 0xF0 shr 4]).append(HEXES[b and 0x0F]).append(" ")
 
             //            MLog.e(TAG, cn.P2PPetCam.www.AppBean.StringFormatUtil.Stringformat("raw[%d]== %d", len, b));
-            Log.i(TAG(),"hex[${hex}]")
-            if (++len >= size)
+//            Log.i(TAG(),"hex[${hex}]")
+            if (len + 1 >= size)
                 break
         }
 

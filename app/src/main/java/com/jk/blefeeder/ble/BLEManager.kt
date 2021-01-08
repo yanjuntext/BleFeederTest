@@ -8,6 +8,7 @@ import android.content.ServiceConnection
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import com.base.utils.MLog
 import com.jk.blefeeder.ble.impl.IBLEScan
 import com.jk.blefeeder.ble.impl.IBLEService
 import com.jk.blefeeder.ble.impl.IBLEStatus
@@ -70,20 +71,25 @@ class BLEManager private constructor(val context: Context, var bleDevType: BleDe
 
     //蓝牙状态监听
     private var mBLEStatusCallback = mutableListOf<IBLEStatus>()
+
     //蓝牙通信监听
     private var mBLEWorkCallback = mutableListOf<IBLEWork>()
+
     //蓝牙服务监听
     private var mBLEServiceCallback = mutableListOf<IBLEService>()
 
     private var mBLEOTACallback = mutableListOf<IBLEOTA>()
 
     private var mBLEStatus: BLEStatusEnum = BLEStatusEnum.close
+
     //消息重发次数
     private var mBleRetrySendCount = 3
+
     //消息重发间隔
     private var mBleRetrySendSpaceTime = 3000L
 
     private var mBleRetryJob: Job? = null
+
     //发送数据列表
     @Volatile
     private var mBleDataList = mutableListOf<ByteArray>()
@@ -94,6 +100,13 @@ class BLEManager private constructor(val context: Context, var bleDevType: BleDe
         mBLEScanHelper = BLEScanHelper(context).also {
             it.setScanResultCallback(this)
         }
+    }
+
+    fun setBleType(type: BleDevTypeEnum): BLEManager {
+        MLog.i("TAG", "setBleType[$type]");
+        this.bleDevType = type
+        mBLEService?.setBleDevType(bleDevType)
+        return this
     }
 
     fun getBLeStatus() = mBLEStatus
@@ -232,14 +245,16 @@ class BLEManager private constructor(val context: Context, var bleDevType: BleDe
      * @param duration 扫描时长 毫秒
      * */
     fun startLeScan(address: String?, index: Int = 1, duration: Long): BLEManager {
-        mScanResult.clear()
+
         mBLEScanHelper?.startLeScan(address, index, duration)
         return this
     }
 
     fun stopScan(result: Boolean = true): BLEManager {
         Log.i(TAG, "BLEManager  stopScan")
-        mBLEScanHelper?.stopScan(result)
+        if (result) {
+            mBLEScanHelper?.stopScan(result)
+        }
         return this
     }
 
@@ -249,11 +264,11 @@ class BLEManager private constructor(val context: Context, var bleDevType: BleDe
     fun connectBLE(address: String?, reconnectCount: Int = 3): Boolean {
         Log.i(TAG, "connectBLE[${address.isNullOrEmpty()}]")
         if (address.isNullOrEmpty()) return false
-        stopScan()
+        stopScan(false)
         mBLEStatus = BLEStatusEnum.connectting
         Log.i(TAG, "connectBLE[${mBLEService == null}]")
         if (mBLEService == null) return false
-
+        mBLEService?.setBleDevType(bleDevType)
         return mBLEService?.connect(address, reconnectCount) ?: false
     }
 
@@ -312,6 +327,11 @@ class BLEManager private constructor(val context: Context, var bleDevType: BleDe
         }
     }
 
+    private fun removeAllData() {
+        mBleRetryJob?.cancel()
+        mBleRetryJob = null
+        mBleDataList.clear()
+    }
 
     //设置mtu
     fun setMTU(mtu: Int): Boolean =
@@ -361,9 +381,7 @@ class BLEManager private constructor(val context: Context, var bleDevType: BleDe
 
     //断开蓝牙连接
     fun disconectBLE(): Boolean {
-        mBleRetryJob?.cancel()
-        mBleRetryJob = null
-        mBleDataList.clear()
+        removeAllData()
         return mBLEService?.disconnect() ?: false
     }
 
@@ -377,9 +395,7 @@ class BLEManager private constructor(val context: Context, var bleDevType: BleDe
         mBLEScanHelper?.destory()
 
 
-        mBleRetryJob?.cancel()
-        mBleRetryJob = null
-        mBleDataList.clear()
+        removeAllData()
 
         removeAllIBLEScan()
         removeAllIBLEService()
@@ -428,15 +444,16 @@ class BLEManager private constructor(val context: Context, var bleDevType: BleDe
     }
 
     override fun onScanResult(device: BLEDev) {
+        mBLEService?.setBleDevType(bleDevType)
         val dev =
             mScanResult.singleOrNull { it.bluetoothDevice.address == device.bluetoothDevice.address }
         if (dev == null) {
             mScanResult.add(device)
 //            GlobalScope.launch(Dispatchers.Main) {
 //                Log.i(TAG, "onScanResult")
-                mIBleScanList.forEach {
-                    it.bleScanning(device)
-                }
+            mIBleScanList.forEach {
+                it.bleScanning(device)
+            }
 //            }
         }
 
@@ -452,9 +469,22 @@ class BLEManager private constructor(val context: Context, var bleDevType: BleDe
 
     }
 
+    override fun onStartScan() {
+        GlobalScope.launch(Dispatchers.Main) {
+            mScanResult.clear()
+            Log.i(TAG, "onStartScan")
+            mIBleScanList.forEach {
+                it.bleStartScanBefor()
+            }
+        }
+    }
+
     override fun onBleStatus(status: BLEStatusEnum) {
         mBLEStatus = status
         GlobalScope.launch(Dispatchers.Main) {
+            if (status == BLEStatusEnum.disconnect) {
+                removeAllData()
+            }
             mBLEStatusCallback.forEach {
                 it.bleStatus(status)
             }
@@ -532,7 +562,9 @@ class BLEManager private constructor(val context: Context, var bleDevType: BleDe
         characteristic: BluetoothGattCharacteristic?
     ) {
         GlobalScope.launch(Dispatchers.Main) {
-            if (characteristic?.uuid?.toString()?.toLowerCase() == BLEUuids.BATTERY_CHARACTERISTIC_UUID.toString().toLowerCase()) {
+            if (characteristic?.uuid?.toString()
+                    ?.toLowerCase() == BLEUuids.BATTERY_CHARACTERISTIC_UUID.toString().toLowerCase()
+            ) {
                 val data = characteristic.value
                 if (data.isNotEmpty()) {
                     mBLEWorkCallback.forEach {

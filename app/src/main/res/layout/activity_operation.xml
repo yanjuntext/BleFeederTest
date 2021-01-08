@@ -1,211 +1,279 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <View
-        android:id="@+id/status_bar"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/colorAccent" />
-
     <RelativeLayout
-        android:id="@+id/rl_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/status_bar">
+        android:layout_height="wrap_content">
+        <View
+            android:id="@+id/status_bar"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorAccent" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_title"
+        <RelativeLayout
+            android:id="@+id/rl_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorAccent"
-            android:gravity="center"
-            android:padding="@dimen/dimen_10"
-            android:text="蓝牙测试"
-            android:textColor="@color/white"
-            android:textSize="16dp" />
+            android:layout_below="@+id/status_bar">
 
-        <ImageView
-            android:id="@+id/iv_back"
-            android:layout_width="@dimen/dimen_30"
-            android:layout_height="@dimen/dimen_30"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="@dimen/dimen_10"
-            android:src="@mipmap/back" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorAccent"
+                android:gravity="center"
+                android:padding="@dimen/dimen_10"
+                android:text="蓝牙测试"
+                android:textColor="@color/white"
+                android:textSize="16dp" />
+
+            <ImageView
+                android:id="@+id/iv_back"
+                android:layout_width="@dimen/dimen_30"
+                android:layout_height="@dimen/dimen_30"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/dimen_10"
+                android:src="@mipmap/back" />
+        </RelativeLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/rl_title"
+            android:layout_marginTop="@dimen/dimen_20"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_temp"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/dimen_10"
+                    android:layout_weight="1"
+                    android:background="@drawable/operation_bg"
+                    android:gravity="center"
+                    android:text="温度"
+                    android:textColor="@color/white"
+                    android:textSize="14dp"
+                    android:visibility="gone"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_battery"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/dimen_10"
+                    android:layout_weight="1"
+                    android:background="@drawable/operation_bg"
+                    android:gravity="center"
+                    android:text="电池"
+                    android:textColor="@color/white"
+                    android:textSize="14dp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_version"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/dimen_10"
+                    android:layout_weight="1"
+                    android:background="@drawable/operation_bg"
+                    android:gravity="center"
+                    android:text="版本号"
+                    android:textColor="@color/white"
+                    android:textSize="14dp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_rssi"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/operation_bg"
+                    android:gravity="center"
+                    android:text="信号值"
+                    android:textColor="@color/white"
+                    android:textSize="14dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_feeder"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="@dimen/dimen_10"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_feed"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/dimen_10"
+                    android:layout_weight="1"
+                    android:background="@drawable/operation_bg"
+                    android:gravity="center"
+                    android:text="喂食"
+                    android:textColor="@color/white"
+                    android:textSize="14dp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_red_led"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/dimen_10"
+                    android:layout_weight="1"
+                    android:background="@drawable/operation_bg"
+                    android:gravity="center"
+                    android:text="红灯"
+                    android:textColor="@color/white"
+                    android:textSize="14dp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_record"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/operation_bg"
+                    android:gravity="center"
+                    android:text="录音"
+                    android:textColor="@color/white"
+                    android:textSize="14dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_pack"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:visibility="gone"
+                android:layout_marginTop="@dimen/dimen_10"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_fan_1"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/dimen_10"
+                    android:layout_weight="1"
+                    android:background="@drawable/operation_bg"
+                    android:gravity="center"
+                    android:text="风扇1"
+                    android:textColor="@color/white"
+                    android:textSize="14dp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_fan_2"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/dimen_10"
+                    android:layout_weight="1"
+                    android:background="@drawable/operation_bg"
+                    android:gravity="center"
+                    android:text="风扇2"
+                    android:textColor="@color/white"
+                    android:textSize="14dp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:visibility="invisible"
+                    android:background="@drawable/operation_bg"
+                    android:gravity="center"
+                    android:text="录音"
+                    android:textColor="@color/white"
+                    android:textSize="14dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginTop="@dimen/dimen_10"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="@dimen/dimen_10"
+                    android:layout_weight="1"
+                    android:background="@drawable/operation_bg"
+                    android:gravity="center"
+                    android:text="喂食"
+                    android:textColor="@color/white"
+                    android:textSize="14dp"
+                    android:visibility="invisible" />
+
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/operation_bg"
+                    android:gravity="center"
+                    android:text="绿灯"
+                    android:textColor="@color/white"
+                    android:textSize="14dp"
+                    android:visibility="invisible" />
+
+            </LinearLayout>
+
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_scan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dimen_50"
+                android:background="@drawable/bg_press"
+                android:gravity="center"
+                android:padding="@dimen/dimen_10"
+                android:text="扫码"
+                android:textColor="@color/text_press"
+                android:textSize="14dp" />
+
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_current_mac"
+                android:layout_width="150dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginEnd="@dimen/dimen_10"
+                android:gravity="center"
+                android:text="当前MAC:\nqweqeqw\n烧号MAC:\nqqwewqewq"
+
+                android:textColor="@color/white"
+                android:textSize="14dp"
+                android:visibility="gone" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_new_mac"
+                android:layout_width="150dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginEnd="@dimen/dimen_10"
+                android:background="@drawable/operation_bg"
+                android:gravity="center"
+                android:text="烧号MAC:"
+                android:layout_marginBottom="@dimen/dimen_20"
+                android:textColor="@color/white"
+                android:textSize="14dp"
+                />
+
+
+        </LinearLayout>
     </RelativeLayout>
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/rl_title"
-        android:layout_marginTop="@dimen/dimen_20"
-        android:orientation="vertical">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:orientation="horizontal"
-            android:weightSum="3">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tv_battery"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="@dimen/dimen_10"
-                android:layout_weight="1"
-                android:background="@drawable/operation_bg"
-                android:gravity="center"
-                android:text="电池"
-                android:textColor="@color/white"
-                android:textSize="14dp" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tv_version"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="@dimen/dimen_10"
-                android:layout_weight="1"
-                android:background="@drawable/operation_bg"
-                android:gravity="center"
-                android:text="版本号"
-                android:textColor="@color/white"
-                android:textSize="14dp" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tv_rssi"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/operation_bg"
-                android:gravity="center"
-                android:text="信号值"
-                android:textColor="@color/white"
-                android:textSize="14dp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginTop="@dimen/dimen_10"
-            android:orientation="horizontal"
-            android:weightSum="3">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tv_feed"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="@dimen/dimen_10"
-                android:layout_weight="1"
-                android:background="@drawable/operation_bg"
-                android:gravity="center"
-                android:text="喂食"
-                android:textColor="@color/white"
-                android:textSize="14dp" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tv_red_led"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="@dimen/dimen_10"
-                android:layout_weight="1"
-                android:background="@drawable/operation_bg"
-                android:gravity="center"
-                android:text="红灯"
-                android:textColor="@color/white"
-                android:textSize="14dp" />
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tv_record"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/operation_bg"
-                android:gravity="center"
-                android:text="录音"
-                android:textColor="@color/white"
-                android:textSize="14dp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="80dp"
-            android:layout_marginTop="@dimen/dimen_10"
-            android:orientation="horizontal"
-            android:weightSum="3">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="@dimen/dimen_10"
-                android:layout_weight="1"
-                android:background="@drawable/operation_bg"
-                android:gravity="center"
-                android:text="喂食"
-                android:textColor="@color/white"
-                android:textSize="14dp"
-                android:visibility="invisible" />
 
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="@drawable/operation_bg"
-                android:gravity="center"
-                android:text="绿灯"
-                android:textColor="@color/white"
-                android:textSize="14dp"
-                android:visibility="invisible" />
-
-        </LinearLayout>
-
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_scan"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/dimen_50"
-            android:background="@drawable/bg_press"
-            android:gravity="center"
-            android:padding="@dimen/dimen_10"
-            android:text="扫码"
-            android:textColor="@color/text_press"
-            android:textSize="14dp" />
-
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_current_mac"
-            android:layout_width="150dp"
-            android:layout_height="120dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginEnd="@dimen/dimen_10"
-            android:gravity="center"
-            android:text="当前MAC:\nqweqeqw\n烧号MAC:\nqqwewqewq"
-
-            android:textColor="@color/white"
-            android:textSize="14dp"
-            android:visibility="gone" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tv_new_mac"
-            android:layout_width="150dp"
-            android:layout_height="120dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginEnd="@dimen/dimen_10"
-            android:background="@drawable/operation_bg"
-            android:gravity="center"
-            android:text="烧号MAC:"
-            android:textColor="@color/white"
-            android:textSize="14dp"
-            android:visibility="gone" />
-
-
-    </LinearLayout>
-
-
-</RelativeLayout>
+</ScrollView>

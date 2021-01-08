@@ -34,7 +34,7 @@ open class BaseAndroidViewModel(val app: Application) : AndroidViewModel(app) {
     }
 
     private fun launchOnUI(block: suspend CoroutineScope.() -> Unit) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             block()
         }
     }

@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_top"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:scaleType="centerCrop"
+        android:src="@mipmap/ic_draw_top" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/ll_name"
+        android:layout_width="@dimen/dimen_100"
+        android:layout_height="@dimen/dimen_40"
+        android:layout_below="@+id/iv_top"
+        android:layout_marginStart="@dimen/dimen_10"
+        android:layout_marginTop="@dimen/dimen_10"
+        android:gravity="center|left"
+        android:text="蓝牙名称："
+        android:textColor="@color/black"
+        android:textSize="14dp" />
+
+    <cn.p2ppetcam.weight.ClearEditText
+        android:id="@+id/et_ble_name"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@+id/ll_name"
+        android:layout_alignBottom="@+id/ll_name"
+        android:layout_marginEnd="@dimen/dimen_10"
+        android:layout_toEndOf="@+id/ll_name"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textColor="@color/black"
+        android:textSize="14dp" />
+
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/ll_feed_num"
+        android:layout_width="@dimen/dimen_100"
+        android:layout_height="@dimen/dimen_40"
+        android:layout_below="@+id/ll_name"
+        android:layout_marginStart="@dimen/dimen_10"
+        android:gravity="center|left"
+        android:text="喂食份数："
+        android:textColor="@color/black"
+        android:textSize="14dp" />
+
+    <cn.p2ppetcam.weight.ClearEditText
+        android:id="@+id/et_feed_num"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@+id/ll_feed_num"
+        android:layout_alignBottom="@+id/ll_feed_num"
+        android:layout_marginEnd="@dimen/dimen_10"
+        android:layout_toEndOf="@+id/ll_feed_num"
+        android:inputType="number"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textColor="@color/black"
+        android:textSize="14dp" />
+
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/ll_version"
+        android:layout_width="@dimen/dimen_100"
+        android:layout_height="@dimen/dimen_40"
+        android:layout_below="@+id/ll_feed_num"
+        android:layout_marginStart="@dimen/dimen_10"
+        android:gravity="center|left"
+        android:text="版本号："
+        android:textColor="@color/black"
+        android:textSize="14dp" />
+
+    <cn.p2ppetcam.weight.ClearEditText
+        android:id="@+id/et_version"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@+id/ll_version"
+        android:layout_alignBottom="@+id/ll_version"
+        android:layout_marginEnd="@dimen/dimen_10"
+        android:layout_toEndOf="@+id/ll_version"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textColor="@color/black"
+        android:textSize="14dp" />
+
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/ll_rssi"
+        android:layout_width="@dimen/dimen_100"
+        android:layout_height="@dimen/dimen_40"
+        android:layout_below="@+id/ll_version"
+        android:layout_marginStart="@dimen/dimen_10"
+        android:gravity="center|left"
+        android:text="信号强度："
+        android:textColor="@color/black"
+        android:textSize="14dp" />
+
+    <cn.p2ppetcam.weight.ClearEditText
+        android:id="@+id/et_rssi"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@+id/ll_rssi"
+        android:layout_alignBottom="@+id/ll_rssi"
+        android:layout_marginEnd="@dimen/dimen_10"
+        android:layout_toEndOf="@+id/ll_rssi"
+        android:inputType="numberSigned"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textColor="@color/black"
+        android:textSize="14dp" />
+
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/ll_record"
+        android:layout_width="@dimen/dimen_100"
+        android:layout_height="@dimen/dimen_40"
+        android:layout_below="@+id/ll_rssi"
+        android:layout_marginStart="@dimen/dimen_10"
+        android:gravity="center|left"
+        android:text="录音时长(s)："
+        android:textColor="@color/black"
+        android:textSize="14dp" />
+
+    <cn.p2ppetcam.weight.ClearEditText
+        android:id="@+id/et_record"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignTop="@+id/ll_record"
+        android:layout_alignBottom="@+id/ll_record"
+        android:layout_marginEnd="@dimen/dimen_10"
+        android:layout_toEndOf="@+id/ll_record"
+        android:inputType="number"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textColor="@color/black"
+        android:textSize="14dp" />
+
+
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/cb_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/ll_record"
+        android:layout_below="@+id/ll_record"
+        android:layout_marginTop="@dimen/dimen_10"
+        android:textSize="14dp"
+        android:text="研发专用（生产慎点）"/>
+
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/qr_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/ll_record"
+        android:layout_below="@+id/cb_type"
+        android:layout_marginTop="@dimen/dimen_10"
+        android:textSize="14dp"
+        android:text="条形码(不勾选时为二维码)"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/qr_type"
+        android:layout_margin="@dimen/dimen_20"
+        android:background="@drawable/bg_press"
+        android:gravity="center"
+        android:padding="@dimen/dimen_10"
+        android:text="确定"
+        android:textColor="@color/text_press"
+        android:textSize="14dp" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_version"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_text"
+        android:layout_marginStart="@dimen/dimen_10"
+        android:layout_marginEnd="@dimen/dimen_10"
+        android:gravity="center|left"
+        android:text="版本号："
+        android:textColor="@color/black"
+        android:textSize="14dp" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_down_tips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_version"
+        android:layout_marginStart="@dimen/dimen_10"
+        android:layout_marginTop="@dimen/dimen_10"
+        android:layout_marginEnd="@dimen/dimen_10"
+        android:gravity="center|left"
+        android:text="下载链接："
+        android:textColor="@color/black"
+        android:textSize="14dp" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_down"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_down_tips"
+        android:gravity="center"
+        android:padding="@dimen/dimen_10"
+        android:text="http://d.firim.ink/blefeedertest"
+        android:textColor="@color/colorAccent" />
+
+</RelativeLayout>

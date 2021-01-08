@@ -6,5 +6,5 @@ package com.jk.blefeeder.ble.bean
  *@time 2020/4/27 9:48
  */
 enum class BleDevTypeEnum {
-    bone, catroom
+    bone, catroom,du10b,fw
 }

@@ -9,6 +9,7 @@ import com.jk.blefeeder.ble.impl.IBLEGattCallback
 import com.jk.blefeeder.ble.impl.IBLEOTA
 import com.jk.blefeeder.ble.ota.SYDBLEOtaHelper
 import com.jk.blefeeder.ble.io.ParseBLEIO
+import com.wyj.base.log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
@@ -54,7 +55,9 @@ class BLEGattHelper(context: Context) : BluetoothGattCallback() {
     }
 
     fun setBleDevType(type: BleDevTypeEnum): BLEGattHelper {
+        log("setBleDevType type[$type]")
         this.mBleDevType = type
+        log("setBleDevType type[$mBleDevType]")
         return this
     }
 
@@ -68,22 +71,25 @@ class BLEGattHelper(context: Context) : BluetoothGattCallback() {
     }
 
     fun getCharacteristic(characteristicEnum: CharacteristicEnum) =
-            if (mGatt == null) {
-                Log.i(TAG, "getCharacteristic error gatt is null")
-                null
-            } else {
+        if (mGatt == null) {
+            Log.i(TAG, "getCharacteristic error gatt is null")
+            null
+        } else {
 
-                mGatt?.getService(if (characteristicEnum == CharacteristicEnum.battery) BLEUuids.BATTERY_SERVICE_UUID else BLEUuids.getBLEServiceUuid(
+            mGatt?.getService(
+                if (characteristicEnum == CharacteristicEnum.battery) BLEUuids.BATTERY_SERVICE_UUID else BLEUuids.getBLEServiceUuid(
                     mBleDevType
                 )
-                )?.let {
-                    it.getCharacteristic(when (characteristicEnum) {
+            )?.let {
+                it.getCharacteristic(
+                    when (characteristicEnum) {
                         CharacteristicEnum.tx -> BLEUuids.getBLETxCharacteristivUuid(mBleDevType)
                         CharacteristicEnum.rx -> BLEUuids.getBLERxCharacteristivUuid(mBleDevType)
                         else -> BLEUuids.BATTERY_CHARACTERISTIC_UUID
-                    })
-                }
+                    }
+                )
             }
+        }
 
 
     fun setBleOtaListener(listener: IBLEOTA) {
@@ -92,8 +98,15 @@ class BLEGattHelper(context: Context) : BluetoothGattCallback() {
 
     @Synchronized
     fun connect(address: String?, reconnectCount: Int = 3, isReconnect: Boolean = false): Boolean {
+        mConnectTimeOutJob?.cancel()
+        mConnectTimeOutJob = null
+        mReconnectJob?.cancel()
+        mReconnectJob = null
         if (address.isNullOrEmpty() || mBleAdapter?.get() == null) {
-            Log.d(TAG, "BluetoothAdapter not initialized or unspecified address.")
+            Log.d(
+                TAG,
+                "BluetoothAdapter not initialized or unspecified address.[address[$address]]"
+            )
             return false
         }
 
@@ -113,6 +126,11 @@ class BLEGattHelper(context: Context) : BluetoothGattCallback() {
         if (!BluetoothAdapter.checkBluetoothAddress(address)) {
             return false
         }
+
+        mGatt?.disconnect()
+        mGatt?.close()
+        mGatt = null
+
         RECONNECT_COUNT = reconnectCount
         if (!isReconnect)
             mReconnectIndex = 0
@@ -142,10 +160,10 @@ class BLEGattHelper(context: Context) : BluetoothGattCallback() {
                 delay(mConnectTimeOutTime)
                 emit(1)
             }.flowOn(Dispatchers.IO)
-                    .collect {
-                        Log.i(TAG, "connectTimeOut ---- [$mReconnectIndex]")
-                        reconnectBle()
-                    }
+                .collect {
+                    Log.i(TAG, "connectTimeOut ---- [$mReconnectIndex]")
+                    reconnectBle()
+                }
         }
     }
 
@@ -195,20 +213,21 @@ class BLEGattHelper(context: Context) : BluetoothGattCallback() {
         return getCharacteristic(CharacteristicEnum.rx)?.let {
             it.value = data
             mGatt?.writeCharacteristic(it)
+            mGatt?.writeCharacteristic(it)
             true
         } ?: false
     }
 
     fun setMtu(mtu: Int) =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                if (mBleAdapter == null || mGatt == null) {
-                    Log.d(TAG, "BluetoothAdapter not initialized")
-                    false
-                } else {
-                    mGatt?.requestMtu(mtu)
-                    true
-                }
-            } else false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (mBleAdapter == null || mGatt == null) {
+                Log.d(TAG, "BluetoothAdapter not initialized")
+                false
+            } else {
+                mGatt?.requestMtu(mtu)
+                true
+            }
+        } else false
 
     fun readRssi(): Boolean = if (mBleAdapter == null || mGatt == null) {
         false
@@ -254,9 +273,9 @@ class BLEGattHelper(context: Context) : BluetoothGattCallback() {
 
         mSYDBLEOtaHelper.close()
         mBluetoothDeviceAddress = null
-//        mGatt?.disconnect()
+        mGatt?.disconnect()
         mGatt?.close()
-//        mGatt = null
+        mGatt = null
     }
 
 
@@ -278,46 +297,57 @@ class BLEGattHelper(context: Context) : BluetoothGattCallback() {
         val address = mBluetoothDeviceAddress
         close()
         mBleGattCallback?.get()?.onBleStatus(BLEStatusEnum.reconnect)
+        log("reconnectBle----")
         mReconnectJob = GlobalScope.launch {
             flow {
-                delay(500L)
+                delay(2000L)
                 emit(address)
             }.flowOn(Dispatchers.IO)
-                    .collect {
-
-                        connect(it, isReconnect = true)
-                    }
+                .collect {
+                    log("reconnectBle---- +++")
+                    connect(it, isReconnect = true)
+                }
         }
     }
 
-    private fun reDiscoverService(){
+    private fun reDiscoverService() {
         //有时候发现服务不回调,需延时 https://stackoverflow.com/questions/41434555/onservicesdiscovered-never-called-while-connecting-to-gatt-server#comment70285228_41526267
         mDiscoverServiceJob?.cancel()
         mDiscoverServiceJob = null
         mDiscoverServiceJob = GlobalScope.launch(Dispatchers.Main) {
             flow {
-                for(i in 0..3){
+                for (i in 0..3) {
                     delay(3000L)
                     emit(i)
                 }
             }.flowOn(Dispatchers.IO)
-                    .collect{
-                        mReDiscoverServiceIndex++
-                        if(mReDiscoverServiceIndex > 3){
-                            mBleGattCallback?.get()?.onBleStatus(BLEStatusEnum.unDIscoverService)
-                        }else{
-                            mGatt?.discoverServices()
-                            mBleGattCallback?.get()?.onBleStatus(BLEStatusEnum.discoverService)
-                        }
-                        Log.i(TAG, "Attempting to start service discovery,index[$mReDiscoverServiceIndex]")
+                .collect {
+                    mReDiscoverServiceIndex++
+                    if (mReDiscoverServiceIndex > 1) {
+                        mBleGattCallback?.get()?.onBleStatus(BLEStatusEnum.unDIscoverService)
+                    } else {
+                        mGatt?.discoverServices()
+                        mBleGattCallback?.get()?.onBleStatus(BLEStatusEnum.discoverService)
                     }
+                    Log.i(
+                        TAG,
+                        "Attempting to start service discovery,index[$mReDiscoverServiceIndex]"
+                    )
+                }
         }
     }
 
     override fun onConnectionStateChange(gatt: BluetoothGatt?, status: Int, newState: Int) {
         super.onConnectionStateChange(gatt, status, newState)
-        Log.e(TAG, "ble onConnectionStateChange[$status],[$newState]")
+        Log.e(
+            TAG,
+            "ble onConnectionStateChange[$status],[$newState],mReconnectIndex[$mReconnectIndex],RECONNECT_COUNT[$RECONNECT_COUNT]"
+        )
         mConnectTimeOutJob?.cancel()
+        mConnectTimeOutJob = null
+        mReconnectJob?.cancel()
+        mReconnectJob = null
+
         if (status == 133 && mReconnectIndex < RECONNECT_COUNT) {
             reconnectBle()
             return
@@ -332,6 +362,7 @@ class BLEGattHelper(context: Context) : BluetoothGattCallback() {
 //
                     mBleGattCallback?.get()?.onBleStatus(BLEStatusEnum.discoverService)
                     mReDiscoverServiceIndex = 0
+
                     mGatt?.discoverServices()
                     reDiscoverService()
                 }
@@ -375,10 +406,13 @@ class BLEGattHelper(context: Context) : BluetoothGattCallback() {
                 Log.e(TAG, "service uuid[" + service.uuid + "],type[" + service.type + "]")
                 val characteristics = service.characteristics
                 for (characteristic in characteristics) {
-                    Log.e(TAG, "    characteristic UUID[" + characteristic.uuid + "],value[" + characteristic.value + "]")
+                    Log.e(
+                        TAG,
+                        "    characteristic UUID[" + characteristic.uuid + "],value[" + characteristic.value + "]"
+                    )
                 }
             }
-
+            log("mBleDevType [$mBleDevType]")
             if (mBleDevType == BleDevTypeEnum.bone) {
                 openNotify(CharacteristicEnum.battery)
             } else {
@@ -389,35 +423,60 @@ class BLEGattHelper(context: Context) : BluetoothGattCallback() {
         mBleGattCallback?.get()?.onBleServiceDiscover(gatt, status)
     }
 
-    override fun onCharacteristicRead(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
+    override fun onCharacteristicRead(
+        gatt: BluetoothGatt?,
+        characteristic: BluetoothGattCharacteristic?,
+        status: Int
+    ) {
         super.onCharacteristicRead(gatt, characteristic, status)
         Log.d(TAG, "onCharacteristicRead")
 
         mBleGattCallback?.get()?.onCharacteristicRead(gatt, characteristic, status)
-        if (characteristic?.uuid?.toString()?.toLowerCase() == mSYDBLEOtaHelper.getOtaUpdateCharacteristic()?.uuid?.toString()?.toLowerCase()) {
+        if (characteristic?.uuid?.toString()
+                ?.toLowerCase() == mSYDBLEOtaHelper.getOtaUpdateCharacteristic()?.uuid?.toString()
+                ?.toLowerCase()
+        ) {
             mSYDBLEOtaHelper.onCharacteristicRead(gatt, characteristic, status)
         }
     }
 
-    override fun onCharacteristicWrite(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?, status: Int) {
+    override fun onCharacteristicWrite(
+        gatt: BluetoothGatt?,
+        characteristic: BluetoothGattCharacteristic?,
+        status: Int
+    ) {
         super.onCharacteristicWrite(gatt, characteristic, status)
         mBleGattCallback?.get()?.onCharacteristicWrite(gatt, characteristic, status)
-        if (characteristic?.uuid?.toString()?.toLowerCase() == mSYDBLEOtaHelper.getOtaUpdateCharacteristic()?.uuid?.toString()?.toLowerCase()) {
+        if (characteristic?.uuid?.toString()
+                ?.toLowerCase() == mSYDBLEOtaHelper.getOtaUpdateCharacteristic()?.uuid?.toString()
+                ?.toLowerCase()
+        ) {
             mSYDBLEOtaHelper.onCharacteristicWrite(gatt, characteristic, status)
         }
     }
 
-    override fun onCharacteristicChanged(gatt: BluetoothGatt?, characteristic: BluetoothGattCharacteristic?) {
+    override fun onCharacteristicChanged(
+        gatt: BluetoothGatt?,
+        characteristic: BluetoothGattCharacteristic?
+    ) {
         super.onCharacteristicChanged(gatt, characteristic)
         mBleGattCallback?.get()?.onCharacteristicChange(gatt, characteristic)
     }
 
-    override fun onDescriptorRead(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {
+    override fun onDescriptorRead(
+        gatt: BluetoothGatt?,
+        descriptor: BluetoothGattDescriptor?,
+        status: Int
+    ) {
         super.onDescriptorRead(gatt, descriptor, status)
 
     }
 
-    override fun onDescriptorWrite(gatt: BluetoothGatt?, descriptor: BluetoothGattDescriptor?, status: Int) {
+    override fun onDescriptorWrite(
+        gatt: BluetoothGatt?,
+        descriptor: BluetoothGattDescriptor?,
+        status: Int
+    ) {
         super.onDescriptorWrite(gatt, descriptor, status)
         //设置通知回调
 
@@ -430,7 +489,9 @@ class BLEGattHelper(context: Context) : BluetoothGattCallback() {
 
         if (cUuid.toLowerCase() == BLEUuids.BATTERY_CHARACTERISTIC_UUID.toString().toLowerCase()) {
             openNotify(CharacteristicEnum.tx)
-        } else if (cUuid.toLowerCase() == BLEUuids.getBLETxCharacteristivUuid(mBleDevType).toString().toLowerCase()) {
+        } else if (cUuid.toLowerCase() == BLEUuids.getBLETxCharacteristivUuid(mBleDevType)
+                .toString().toLowerCase()
+        ) {
             mBleGattCallback?.get()?.onBleStatus(BLEStatusEnum.connected)
         }
 

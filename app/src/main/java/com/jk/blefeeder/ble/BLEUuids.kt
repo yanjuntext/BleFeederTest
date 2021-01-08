@@ -39,21 +39,36 @@ object BLEUuids {
     private val CAT_ROOM_OTA_CHARACTERISTIC_READ_UUID =
         UUID.fromString("000000B2-0000-1000-8000-00805f9b34fb") // The UUID for service "FF01"
 
+
+    //du10B 猫背包
+    private val PACK_SERVICE_UUID = UUID.fromString("0000FFF0-0000-1000-8000-00805f9b34fb")
+    private val PACK_RX_CHARACTERISTIC_UUID =
+        UUID.fromString("0000FFF2-0000-1000-8000-00805f9b34fb")
+    private val PACK_TX_CHARACTERISTIC_UUID =
+        UUID.fromString("0000FFF1-0000-1000-8000-00805f9b34fb")
+
+
     //获取主服务UUID
     fun getBLEServiceUuid(type: BleDevTypeEnum) =
         when (type) {
             BleDevTypeEnum.bone -> BONE_SERVICE_UUID
+            BleDevTypeEnum.du10b-> PACK_SERVICE_UUID
+            BleDevTypeEnum.fw-> PACK_SERVICE_UUID
             else -> CAT_ROOM_SERVICE_UUID
         }
 
     fun getBLERxCharacteristivUuid(type: BleDevTypeEnum) =
         when (type) {
             BleDevTypeEnum.bone -> BONE_RX_CHARACTERISTIC_UUID
+            BleDevTypeEnum.du10b-> PACK_RX_CHARACTERISTIC_UUID
+            BleDevTypeEnum.fw-> PACK_RX_CHARACTERISTIC_UUID
             else -> CAT_ROOM_RX_CHARACTERISTIC_UUID
         }
 
     fun getBLETxCharacteristivUuid(type: BleDevTypeEnum) = when (type) {
         BleDevTypeEnum.bone -> BONE_TX_CHARACTERISTIC_UUID
+        BleDevTypeEnum.du10b-> PACK_TX_CHARACTERISTIC_UUID
+        BleDevTypeEnum.fw-> PACK_TX_CHARACTERISTIC_UUID
         else -> CAT_ROOM_TX_CHARACTERISTIC_UUID
     }
 

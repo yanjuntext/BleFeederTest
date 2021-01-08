@@ -6,14 +6,19 @@ import com.jk.blefeeder.ble.impl.IBLEScan
 import com.jk.blefeeder.base.BaseAndroidViewModel
 import com.jk.blefeeder.bean.LocalSet
 import com.jk.blefeeder.ble.BLEManager
+import com.jk.blefeeder.ble.BLEWorkEnum
 import com.jk.blefeeder.ble.bean.BLEDev
 import com.jk.blefeeder.ble.bean.BleDevTypeEnum
+import com.jk.blefeeder.ble.impl.IBLEWork
 import com.jk.blefeeder.room.AppDataBase
+import com.tencent.mmkv.MMKV
 import com.wyj.base.log
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
+@ExperimentalCoroutinesApi
 class MainViewModel(app: Application) : BaseAndroidViewModel(app), IBLEScan {
 
 
@@ -30,9 +35,10 @@ class MainViewModel(app: Application) : BaseAndroidViewModel(app), IBLEScan {
 
     val mStopScan = MutableLiveData<Boolean>()
 
+    val mAppType = MutableLiveData<Boolean>()
+
     private fun getBleManager() =
         BLEManager.getInstance(app, BleDevTypeEnum.catroom).addIBleScan(this)
-
 
 
     fun getLocalSetContent() {
@@ -50,19 +56,25 @@ class MainViewModel(app: Application) : BaseAndroidViewModel(app), IBLEScan {
             }
         }
 
+        mAppType.value = MMKV.defaultMMKV().decodeBool("app_type",false)
+
     }
 
     fun searchBle() {
-
-        mBleDevList.value = mutableListOf()
         getBleManager().startLeScan(7000L)
 
     }
 
 
-    fun saveLocal(name: String?, version: String?, rssi: String?, num: String?,recordTime:String?) {
-        if(!recordTime.isNullOrEmpty()){
-            if(recordTime.toInt() > 10){
+    fun saveLocal(
+        name: String?,
+        version: String?,
+        rssi: String?,
+        num: String?,
+        recordTime: String?
+    ) {
+        if (!recordTime.isNullOrEmpty()) {
+            if (recordTime.toInt() > 10) {
                 errorMsg.value = "录音时长最长10S"
                 return
             }
@@ -79,7 +91,7 @@ class MainViewModel(app: Application) : BaseAndroidViewModel(app), IBLEScan {
                     localSet.recordTime = recordTime
                     mLocalDao.update(localSet)
                 } else {
-                    val localSet = LocalSet(name, rssi, version, num,recordTime)
+                    val localSet = LocalSet(name, rssi, version, num, recordTime)
                     mLocalDao.insert(localSet)
                 }
                 mSaveResult.postValue(true)
@@ -92,6 +104,10 @@ class MainViewModel(app: Application) : BaseAndroidViewModel(app), IBLEScan {
         }
     }
 
+    fun setAppType(type:Boolean){
+        mAppType.value = type
+    }
+
     private fun getBleName(dev: BLEDev): Boolean? {
 
         return if ((mBleName.value ?: "").toUpperCase().contains("AF2B") || (mBleName.value
@@ -102,6 +118,10 @@ class MainViewModel(app: Application) : BaseAndroidViewModel(app), IBLEScan {
         } else {
             dev.bluetoothDevice.name?.contains((mBleName.value ?: "").toUpperCase())
         }
+    }
+
+    override fun bleStartScanBefor() {
+        mBleDevList.value = mutableListOf()
     }
 
     override fun bleScanResult(bleList: MutableList<BLEDev>) {
@@ -119,14 +139,17 @@ class MainViewModel(app: Application) : BaseAndroidViewModel(app), IBLEScan {
         mStopScan.value = true
 
     }
+
     override fun bleScanning(bleDev: BLEDev) {
         mStopScan.postValue(false)
         log("bleScanning [${getBleName(bleDev)}],name[${bleDev.bluetoothDevice.name}]")
-        if(getBleName(bleDev) == true){
-            val list = mBleDevList.value?: mutableListOf()
+        if (getBleName(bleDev) == true) {
+            val list = mBleDevList.value ?: mutableListOf()
             list.add(bleDev)
             mBleDevList.postValue(list)
         }
     }
+
+
 
 }

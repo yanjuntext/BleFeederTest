@@ -2,6 +2,7 @@ package cn.p2ppetcam.weight.dialog
 
 import android.content.DialogInterface
 import android.view.View
+import androidx.appcompat.widget.AppCompatTextView
 import androidx.fragment.app.FragmentActivity
 import cn.p2ppetcam.weight.R
 import cn.p2ppetcam.weight.dialog.base.SBuilder
@@ -22,6 +23,8 @@ class CommonDialog private constructor(private var builder: Builder) : SDialog(b
 
 
     private val TAG by lazy { CommonDialog::class.java.name }
+    private var mTvContent:AppCompatTextView? = null
+
     override fun initView() {
 
         tv_title.text = if (builder.title.isNullOrEmpty()) {
@@ -32,11 +35,11 @@ class CommonDialog private constructor(private var builder: Builder) : SDialog(b
             builder.title
         }
         tv_title.setTextColor(builder.titleColor)
-
+        mTvContent = view?.findViewById(R.id.tv_content)
         MLog.e(TAG, "content[${builder.content}]")
-        with(tv_content) {
-            this.text = builder.content ?: ""
-            this.setTextColor(builder.contentColor)
+        with(mTvContent) {
+            this?.text = builder.content ?: ""
+            this?.setTextColor(builder.contentColor)
         }
         with(builder.cancle) {
             if (this.isNullOrEmpty()) {
@@ -65,21 +68,37 @@ class CommonDialog private constructor(private var builder: Builder) : SDialog(b
 
     }
 
+    private fun refresh(){
+        if(!isAdded) return
+        with(mTvContent) {
+            this?.text = builder.content ?: ""
+            this?.setTextColor(builder.contentColor)
+        }
+    }
+
     override fun onShow(dialog: DialogInterface?) {
 
     }
 
 
     open class Builder(activity: FragmentActivity) : SBuilder<Builder>(activity) {
+        private var mDialog:CommonDialog? = null
         override fun builder(): Builder {
             setContentView(R.layout.dialog_default)
             return this
         }
 
-        override fun show(activity: FragmentActivity) :SDialog?{
-            val dialog = CommonDialog(this)
-            dialog.show(activity)
-            return dialog
+        override fun show(activity: FragmentActivity)  = (mDialog?:CommonDialog(this).also {
+            mDialog = it
+        }).also {
+            if(it.dialog?.isShowing != true){
+                it.show(activity)
+            }
+            it.refresh()
+        }
+
+        fun dismiss(){
+            mDialog?.dismiss()
         }
     }
 }
